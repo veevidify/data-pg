@@ -12,7 +12,7 @@ class StochasticGD:
         a = np.dot(xi, w) - yi
         return (xi*a).reshape(2, 1)
 
-    def SGD(self, w_init, eta):
+    def stochastic_gradient_descent(self, w_init, eta):
         w = [w_init]
         w_last_check = w_init
         i_check_w = 10

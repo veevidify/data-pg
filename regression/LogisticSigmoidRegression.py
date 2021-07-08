@@ -9,7 +9,7 @@ class LogisticSigmoidRegression:
     def sigmoid(self, s):
         return 1 / (1 + np.exp(-s))
 
-    def LSR(self, w_init, eta, tol=1e-4, max_count=100000):
+    def logistic_sigmoid_regression(self, w_init, eta, tol=1e-4, max_count=100000):
         w = [w_init]
         i = 0
         N = self.X.shape[1]
