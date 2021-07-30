@@ -6,3 +6,4 @@ from neuralnets import example as nnexamples
 # regression.example.show()
 
 nnexamples.show()
+# nnexamples.show2()
