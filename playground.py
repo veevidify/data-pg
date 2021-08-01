@@ -9,4 +9,5 @@ from decomposition import example as dcompexamples
 # nnexamples.show()
 # nnexamples.show2()
 
-dcompexamples.show()
+# dcompexamples.show()
+dcompexamples.show2()
