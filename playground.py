@@ -1,6 +1,6 @@
 from cluster import kmeans
 import regression
-from neuralnets import example as nnexamples
+# from neuralnets import example as nnexamples
 from decomposition import example as dcompexamples
 
 # kmeans.example.show()
@@ -9,5 +9,5 @@ from decomposition import example as dcompexamples
 # nnexamples.show()
 # nnexamples.show2()
 
-# dcompexamples.show()
-dcompexamples.show2()
+dcompexamples.show()
+# dcompexamples.show2()

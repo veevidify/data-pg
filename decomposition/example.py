@@ -42,9 +42,12 @@ def show2():
     print(y.shape)
 
     X_scaled = StandardScaler().fit_transform(X)
-    X_mc,U,S,V_T = PCA2(X_scaled)
+    X_mc,explained,U,S,Vt = PCA2(X_scaled)
+    total = np.sum(S**2)
+    explained = [np.square(si) / total for si in S]
+    print(explained)
 
-    W_12 = V_T.T[:, :2]
+    W_12 = Vt.T[:, :2]
     proj_2D = X_mc.dot(W_12)
 
     res = pd.DataFrame(proj_2D[:,0], columns=["PC1"])
