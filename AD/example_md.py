@@ -7,7 +7,7 @@ import seaborn as sns
 
 from sklearn import svm
 from sklearn.datasets import make_blobs, make_moons
-# from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler
 
 from decomposition.PCA import PCA, PCA2
 
@@ -46,15 +46,17 @@ def show():
 
     for dataset_i, inliers in enumerate(ds):
         X = np.concatenate([inliers, outliers], axis=0)
+        # X = inliers
         print(X.shape)
 
+        X_scaled = StandardScaler().fit_transform(X)
+        # X_scaled = X
+
         oc_svm = svm.OneClassSVM(nu=outlier_percentage, kernel="rbf", gamma=0.1)
-        oc_svm.fit(X)
-        labels = oc_svm.predict(X)
+        oc_svm.fit(X_scaled)
+        labels = oc_svm.predict(X_scaled)
         print(labels.shape)
 
-        # X_scaled = StandardScaler().fit_transform(X)
-        X_scaled = X
         X_mc,explained,U,S,Vt = PCA2(X_scaled)
         total = np.sum(S**2)
         explained = [np.square(si) / total for si in S]
