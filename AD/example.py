@@ -48,11 +48,13 @@ def show():
         X = np.concatenate([inliers, outliers], axis=0)
         print(X.shape)
 
+        # plt.figure(figsize=(20, 10))
         plt.subplot(1, len(ds), dataset_i+1)
 
         oc_svm = svm.OneClassSVM(nu=outlier_percentage, kernel="rbf", gamma=0.1)
         oc_svm.fit(X)
         labels = oc_svm.predict(X)
+        print(labels.shape)
 
         plot_space = np.c_[xx.ravel(), yy.ravel()]
         # np.set_printoptions(threshold=sys.maxsize)
@@ -65,7 +67,6 @@ def show():
 
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
         # plt.scatter(xx, yy, s=10, color=colors[(Z+1) // 2])
-
 
     plt.show()
 
