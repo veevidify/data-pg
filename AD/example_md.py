@@ -18,6 +18,7 @@ n_outliers = int(n_samples * outlier_percentage)
 n_inliers = n_samples - n_outliers
 
 rng = np.random.RandomState(42)
+colors = np.array(['#377eb8', '#ff7f00'])
 
 
 def get_random_dataset():
@@ -52,7 +53,7 @@ def show():
         X_scaled = StandardScaler().fit_transform(X)
         # X_scaled = X
 
-        oc_svm = svm.OneClassSVM(nu=outlier_percentage, kernel="rbf", gamma=0.1)
+        oc_svm = svm.OneClassSVM(nu=outlier_percentage, kernel="rbf", gamma=0.05)
         oc_svm.fit(X_scaled)
         labels = oc_svm.predict(X_scaled)
         print(labels.shape)
@@ -62,15 +63,28 @@ def show():
         explained = [np.square(si) / total for si in S]
         print(explained)
 
-        W_12 = Vt.T[:, :2]
-        proj_2D = X_mc.dot(W_12)
+        W = Vt.T[:, :3]
+        proj = X_mc.dot(W)
 
-        pca = pd.DataFrame(proj_2D[:,0], columns=["PC1"])
-        pca["PC2"] = proj_2D[:,1]
-        pca["Y"] = labels
+        pca = pd.DataFrame(proj[:,0], columns=["PC1"])
+        pca["PC2"] = proj[:,1]
+        pca["PC3"] = proj[:,2]
+        pca["Labels"] = labels
         print(pca.head())
 
+        plx = pca['PC1']
+        ply = pca['PC2']
+        plz = pca['PC3']
+
         # plt.figure(figsize=(20, 10))
-        #sns.scatterplot(x=res["PC1"], y=np.zeros(y.shape[0]), hue=res["Y"], s=200)
-        sns.scatterplot(x=pca["PC1"], y=pca["PC2"], hue=pca["Y"], s=200)
+        # sns.scatterplot(x=pca["PC1"], y=np.zeros(y.shape[0]), hue=pca["Labels"], s=200)
+        # sns.scatterplot(x=pca["PC1"], y=pca["PC2"], hue=pca["Labels"], s=200)
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection = '3d')
+        ax.set_xlabel('PC1')
+        ax.set_ylabel('PC2')
+        ax.set_zlabel('PC3')
+        ax.scatter(plx, ply, plz, color=colors[(labels+1)//2]) # colors -1, 1 mapped to 0, 1
+
     plt.show()
