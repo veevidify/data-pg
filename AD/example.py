@@ -40,7 +40,7 @@ plt.xlim(-7, 7)
 plt.ylim(-7, 7)
 colors = np.array(['#377eb8', '#ff7f00'])
 
-def show():
+def ocsvm():
     outliers, ds = get_random_dataset()
     print(outliers.shape)
 
@@ -70,3 +70,20 @@ def show():
 
     plt.show()
 
+def lof():
+    outliers, ds = get_random_dataset()
+    print(outliers.shape)
+
+    for dataset_i, inliers in enumerate(ds):
+        X = np.concatenate([inliers, outliers], axis=0)
+        print(X.shape)
+
+        # plt.figure(figsize=(20, 10))
+        plt.subplot(1, len(ds), dataset_i+1)
+
+        lof = LocalOutlierFactor(n_neighbors=35, contamination=outlier_percentage)
+
+        labels = lof.fit_predict(X)
+        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
+
+    plt.show()

@@ -8,8 +8,11 @@ import seaborn as sns
 from sklearn import svm
 from sklearn.datasets import make_blobs, make_moons
 from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import IsolationForest
+from sklearn.neighbors import LocalOutlierFactor
 
 from decomposition.PCA import PCA, PCA2
+import AD.utils as utils
 
 n_samples = 300
 outlier_percentage = 0.15
@@ -42,7 +45,7 @@ def get_random_dataset():
     outliers = rng.uniform(low=-6, high=6, size=(n_outliers, 10))
     return outliers, datasets
 
-def show():
+def ocsvm():
     outliers, ds = get_random_dataset()
 
     for dataset_i, inliers in enumerate(ds):
@@ -58,17 +61,7 @@ def show():
         labels = oc_svm.predict(X_scaled)
         print(labels.shape)
 
-        X_mc,explained,U,S,Vt = PCA2(X_scaled)
-        total = np.sum(S**2)
-        explained = [np.square(si) / total for si in S]
-        print(explained)
-
-        W = Vt.T[:, :3]
-        proj = X_mc.dot(W)
-
-        pca = pd.DataFrame(proj[:,0], columns=["PC1"])
-        pca["PC2"] = proj[:,1]
-        pca["PC3"] = proj[:,2]
+        pca = utils.get_pca(X)
         pca["Labels"] = labels
         print(pca.head())
 
@@ -76,10 +69,52 @@ def show():
         ply = pca['PC2']
         plz = pca['PC3']
 
+        # 2d scatterplot
         # plt.figure(figsize=(20, 10))
         # sns.scatterplot(x=pca["PC1"], y=np.zeros(y.shape[0]), hue=pca["Labels"], s=200)
         # sns.scatterplot(x=pca["PC1"], y=pca["PC2"], hue=pca["Labels"], s=200)
 
+        # 3d scatterplot
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection = '3d')
+        ax.set_xlabel('PC1')
+        ax.set_ylabel('PC2')
+        ax.set_zlabel('PC3')
+        ax.scatter(plx, ply, plz, color=colors[(labels+1)//2]) # colors -1, 1 mapped to 0, 1
+
+    plt.show()
+
+def lof():
+    outliers, ds = get_random_dataset()
+
+    for dataset_i, inliers in enumerate(ds):
+        X = np.concatenate([inliers, outliers], axis=0)
+        # X = inliers
+        print(X.shape)
+
+        X_scaled = StandardScaler().fit_transform(X)
+        # X_scaled = X
+
+        lof = LocalOutlierFactor(n_neighbors=40, contamination=outlier_percentage)
+
+        labels = lof.fit_predict(X)
+
+        # 2D plot
+
+        pca = utils.get_pca(X)
+        pca["Labels"] = labels
+        print(pca.head())
+
+        plx = pca['PC1']
+        ply = pca['PC2']
+        plz = pca['PC3']
+
+        # 2d scatterplot
+        # plt.figure(figsize=(20, 10))
+        # sns.scatterplot(x=pca["PC1"], y=np.zeros(y.shape[0]), hue=pca["Labels"], s=200)
+        # sns.scatterplot(x=pca["PC1"], y=pca["PC2"], hue=pca["Labels"], s=200)
+
+        # 3d
         fig = plt.figure()
         ax = fig.add_subplot(111, projection = '3d')
         ax.set_xlabel('PC1')

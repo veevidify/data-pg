@@ -14,5 +14,8 @@ from AD import example_md as adexamplesmd
 # dcompexamples.show()
 # dcompexamples.show2()
 
-# adexamples.show()
-adexamplesmd.show()
+# adexamples.ocsvm()
+# adexamplesmd.ocsvm()
+
+# adexamples.lof()
+adexamplesmd.lof()
