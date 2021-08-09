@@ -28,14 +28,14 @@ def get_random_dataset():
             centers=[np.zeros(10), np.zeros(10)],
             cluster_std=0.5,
             **blobs_params)[0],
-        # make_blobs(
-        #     centers=[[2, 2], [-2, -2]],
-        #     cluster_std=[0.5, 0.5],
-        #     **blobs_params)[0],
-        # make_blobs(
-        #     centers=[[2, 2], [-2, -2]],
-        #     cluster_std=[1.5, .3],
-        #     **blobs_params)[0],
+        make_blobs(
+            centers=[2*np.ones(10), (-2)*np.ones(10)],
+            cluster_std=[0.5, 0.5],
+            **blobs_params)[0],
+        make_blobs(
+            centers=[2*np.ones(10), (-2)*np.ones(10)],
+            cluster_std=[1.5, .3],
+            **blobs_params)[0],
         # 14. * (np.random.RandomState(42).rand(n_samples, 10) - 0.5)
     ]
 
