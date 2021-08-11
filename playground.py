@@ -18,4 +18,7 @@ from AD import example_md as adexamplesmd
 # adexamplesmd.ocsvm()
 
 # adexamples.lof()
-adexamplesmd.lof()
+# adexamplesmd.lof()
+
+# adexamples.iforest()
+adexamplesmd.iforest()

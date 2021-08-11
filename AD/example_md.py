@@ -123,3 +123,42 @@ def lof():
         ax.scatter(plx, ply, plz, color=colors[(labels+1)//2]) # colors -1, 1 mapped to 0, 1
 
     plt.show()
+
+def iforest():
+    outliers, ds = get_random_dataset()
+
+    for dataset_i, inliers in enumerate(ds):
+        X = np.concatenate([inliers, outliers], axis=0)
+        # X = inliers
+        print(X.shape)
+
+        X_scaled = StandardScaler().fit_transform(X)
+        # X_scaled = X
+
+        iforest = IsolationForest(contamination=outlier_percentage, random_state=42)
+        labels = iforest.fit_predict(X)
+
+        # 2D plot
+
+        pca = utils.get_pca(X)
+        pca["Labels"] = labels
+        print(pca.head())
+
+        plx = pca['PC1']
+        ply = pca['PC2']
+        plz = pca['PC3']
+
+        # 2d scatterplot
+        # plt.figure(figsize=(20, 10))
+        # sns.scatterplot(x=pca["PC1"], y=np.zeros(y.shape[0]), hue=pca["Labels"], s=200)
+        # sns.scatterplot(x=pca["PC1"], y=pca["PC2"], hue=pca["Labels"], s=200)
+
+        # 3d
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection = '3d')
+        ax.set_xlabel('PC1')
+        ax.set_ylabel('PC2')
+        ax.set_zlabel('PC3')
+        ax.scatter(plx, ply, plz, color=colors[(labels+1)//2]) # colors -1, 1 mapped to 0, 1
+
+    plt.show()

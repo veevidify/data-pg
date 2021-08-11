@@ -87,3 +87,29 @@ def lof():
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
 
     plt.show()
+
+def iforest():
+    outliers, ds = get_random_dataset()
+    print(outliers.shape)
+
+    for dataset_i, inliers in enumerate(ds):
+        X = np.concatenate([inliers, outliers], axis=0)
+        print(X.shape)
+
+        # plt.figure(figsize=(20, 10))
+        plt.subplot(1, len(ds), dataset_i+1)
+
+        iforest = IsolationForest(contamination=outlier_percentage, random_state=42)
+        labels = iforest.fit_predict(X)
+
+        plot_space = np.c_[xx.ravel(), yy.ravel()]
+        # np.set_printoptions(threshold=sys.maxsize)
+        # print(plot_space)
+        Z = iforest.predict(plot_space)
+        Z_contours = Z.reshape(xx.shape)
+
+        # print(Z)
+        plt.contour(xx, yy, Z_contours, levels=[0], linewidths=2, colors='black')
+        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
+
+    plt.show()
