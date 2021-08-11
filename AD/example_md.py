@@ -10,6 +10,7 @@ from sklearn.datasets import make_blobs, make_moons
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import IsolationForest
 from sklearn.neighbors import LocalOutlierFactor
+from sklearn.mixture import GaussianMixture
 
 from decomposition.PCA import PCA, PCA2
 import AD.utils as utils
@@ -22,7 +23,6 @@ n_inliers = n_samples - n_outliers
 
 rng = np.random.RandomState(42)
 colors = np.array(['#377eb8', '#ff7f00'])
-
 
 def get_random_dataset():
     blobs_params = dict(random_state=0, n_samples=n_inliers, n_features=10)
@@ -162,3 +162,16 @@ def iforest():
         ax.scatter(plx, ply, plz, color=colors[(labels+1)//2]) # colors -1, 1 mapped to 0, 1
 
     plt.show()
+
+def gaussian_mixture():
+    outliers, ds = get_random_dataset()
+
+    for dataset_i, inliers in enumerate(ds):
+        X = np.concatenate([inliers, outliers], axis=0)
+        # X = inliers
+        print(X.shape)
+
+        X_scaled = StandardScaler().fit_transform(X)
+        # X_scaled = X
+
+    pass
