@@ -23,5 +23,5 @@ from AD import example_md as adexamplesmd
 # adexamples.iforest()
 # adexamplesmd.iforest()
 
-adexamples.gaussian_mixture()
-# adexamplesmd.gaussian_mixture()
+# adexamples.gaussian_mixture()
+adexamplesmd.gaussian_mixture()
