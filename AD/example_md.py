@@ -9,7 +9,7 @@ from sklearn import svm
 from sklearn.datasets import make_blobs, make_moons
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import IsolationForest
-from sklearn.neighbors import LocalOutlierFactor
+from sklearn.neighbors import LocalOutlierFactor, KernelDensity
 from sklearn.mixture import GaussianMixture
 
 from decomposition.PCA import PCA, PCA2
@@ -177,6 +177,50 @@ def gaussian_mixture():
         gmm.fit(X)
 
         scores = gmm.score_samples(X)
+        threshold = np.quantile(scores, 0.15) # 15% outliers
+        labels = np.ones(X.shape[0], dtype=int)
+        labels[np.where(scores < threshold)] = -1
+        print(labels)
+
+        # 2D plot
+        pca = utils.get_pca(X)
+        pca["Labels"] = labels
+        print(pca.head())
+
+        plx = pca['PC1']
+        ply = pca['PC2']
+        plz = pca['PC3']
+
+        # 2d scatterplot
+        # plt.figure(figsize=(20, 10))
+        # sns.scatterplot(x=pca["PC1"], y=np.zeros(y.shape[0]), hue=pca["Labels"], s=200)
+        # sns.scatterplot(x=pca["PC1"], y=pca["PC2"], hue=pca["Labels"], s=200)
+
+        # 3d
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection = '3d')
+        ax.set_xlabel('PC1')
+        ax.set_ylabel('PC2')
+        ax.set_zlabel('PC3')
+        ax.scatter(plx, ply, plz, color=colors[(labels+1)//2]) # colors -1, 1 mapped to 0, 1
+
+    plt.show()
+
+def kde():
+    outliers, ds = get_random_dataset()
+
+    for dataset_i, inliers in enumerate(ds):
+        X = np.concatenate([inliers, outliers], axis=0)
+        # X = inliers
+        print(X.shape)
+
+        X_scaled = StandardScaler().fit_transform(X)
+        # X_scaled = X
+
+        kde = KernelDensity(algorithm='auto', bandwidth=1.0, kernel='gaussian', leaf_size=40, metric='euclidean')
+        kde.fit(X)
+
+        scores = kde.score_samples(X)
         threshold = np.quantile(scores, 0.15) # 15% outliers
         labels = np.ones(X.shape[0], dtype=int)
         labels[np.where(scores < threshold)] = -1

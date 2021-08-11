@@ -8,7 +8,7 @@ from sklearn import svm
 from sklearn.datasets import make_blobs, make_moons
 from sklearn.covariance import EllipticEnvelope
 from sklearn.ensemble import IsolationForest
-from sklearn.neighbors import LocalOutlierFactor
+from sklearn.neighbors import LocalOutlierFactor, KernelDensity
 from sklearn.mixture import GaussianMixture
 
 n_samples = 300
@@ -143,6 +143,41 @@ def gaussian_mixture():
         # np.set_printoptions(threshold=sys.maxsize)
         # print(plot_space)
         Z = gmm.score_samples(plot_space)
+        Z_contours = Z.reshape(xx.shape)
+
+        # print(Z)
+        contours = plt.contour(xx, yy, Z_contours, linewidths=2)
+        # plt.colorbar(contours, shrink=0.8, extend='both')
+
+    plt.show()
+
+def kde():
+    outliers, ds = get_random_dataset()
+    print(outliers.shape)
+
+    for dataset_i, inliers in enumerate(ds):
+        X = np.concatenate([inliers, outliers], axis=0)
+        print(X.shape)
+
+        # plt.figure(figsize=(20, 10))
+        plt.subplot(1, len(ds), dataset_i+1)
+        kde = KernelDensity(algorithm='auto', bandwidth=1.0, kernel='gaussian', leaf_size=40, metric='euclidean')
+        kde.fit(X)
+
+        scores = kde.score_samples(X)
+        print(scores)
+
+        threshold = np.quantile(scores, 0.15) # 15% outliers
+        labels = np.ones(X.shape[0], dtype=int)
+        labels[np.where(scores < threshold)] = -1
+        print(labels)
+
+        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
+
+        plot_space = np.c_[xx.ravel(), yy.ravel()]
+        # np.set_printoptions(threshold=sys.maxsize)
+        # print(plot_space)
+        Z = kde.score_samples(plot_space)
         Z_contours = Z.reshape(xx.shape)
 
         # print(Z)
