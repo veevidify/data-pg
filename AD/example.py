@@ -140,8 +140,6 @@ def gaussian_mixture():
         labels[np.where(scores < threshold)] = -1
         print(labels)
 
-        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
-
         plot_space = np.c_[xx.ravel(), yy.ravel()]
         # np.set_printoptions(threshold=sys.maxsize)
         # print(plot_space)
@@ -149,8 +147,10 @@ def gaussian_mixture():
         Z_contours = Z.reshape(xx.shape)
 
         # print(Z)
-        contours = plt.contour(xx, yy, Z_contours, linewidths=2)
+        # contours = plt.contour(xx, yy, Z_contours, linewidths=2)
         # plt.colorbar(contours, shrink=0.8, extend='both')
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 7), cmap=plt.cm.Blues_r)
+        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
 
     plt.show()
 
@@ -175,8 +175,6 @@ def kde():
         labels[np.where(scores < threshold)] = -1
         print(labels)
 
-        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
-
         plot_space = np.c_[xx.ravel(), yy.ravel()]
         # np.set_printoptions(threshold=sys.maxsize)
         # print(plot_space)
@@ -184,8 +182,10 @@ def kde():
         Z_contours = Z.reshape(xx.shape)
 
         # print(Z)
-        contours = plt.contour(xx, yy, Z_contours, linewidths=2)
+        # contours = plt.contour(xx, yy, Z_contours, linewidths=2)
         # plt.colorbar(contours, shrink=0.8, extend='both')
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 7), cmap=plt.cm.Blues_r)
+        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
 
     plt.show()
 

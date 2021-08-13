@@ -14,7 +14,7 @@ from AD import example_md as adexamplesmd
 # dcompexamples.show()
 # dcompexamples.show2()
 
-adexamples.ocsvm()
+# adexamples.ocsvm()
 # adexamplesmd.ocsvm()
 
 # adexamples.lof()
@@ -26,7 +26,7 @@ adexamples.ocsvm()
 # adexamples.gaussian_mixture()
 # adexamplesmd.gaussian_mixture()
 
-# adexamples.kde()
+adexamples.kde()
 # adexamplesmd.kde()
 
 # adexamples.pcaad()
