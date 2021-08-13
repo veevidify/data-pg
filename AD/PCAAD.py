@@ -4,7 +4,7 @@ import numpy as np
 from decomposition.PCA import PCA
 
 class PCAAD:
-    def __init__():
+    def __init__(self):
         # nxp: each row is an obs, each col is a feat, standard-scaled
         self.X = None
 
@@ -69,17 +69,36 @@ class PCAAD:
         return metrics
 
     def fit(self, X):
-        scaler = StandardScaler()
-        self.X = scaler.fit_transform(X)
+        print(X.shape)
+        # scaler = StandardScaler()
+        # self.X = scaler.fit_transform(X)
+        self.X = X
+        print('==> X')
+        print(self.X.shape)
 
-        self.eigvals, self.eigvecs, self.explained = PCA(self.X)
+        self.eigvals, self.eigvecs, explained = PCA(self.X)
+        print('==> PCA')
+        print(self.eigvals)
+        print(explained)
 
         # PREPROCESS
         # calculate p PCs for each obs Xj of X_feat:
         # -> PC matrix pxn of X
-        self.X_mean = self.X.mean(axis=0).reshape((1, -1)) # mean of each feat, as col vec px1
+        self.X_mean = self.X.mean(axis=0).reshape((1, -1)).T # mean of each feat, as col vec px1
+        print('==> feature means')
+        print(self.X_mean)
+
         self.X_feat = self.X.T # now cols = obs, rows = feats -> pxn
+        print('==> features')
+        print(self.X_feat.shape)
         X_PC = self.calc_principle_components(self.X_feat) # pxn
+        print('==> PC-projected values')
+        print(X_PC.shape)
+        # print(X_PC)
+
+        # c1 & c2 threshold satisfy:
+        # if major metric <= c1 && minor metric <= c2 -> normal
+        # if major matric > c1 || minor metric > c2 -> anomaly
 
         # SELECT C1 THRESHOLD:
         # find q = # of first principle components explaining 50% variance, using explained_variances
@@ -90,20 +109,28 @@ class PCAAD:
         p = self.X_feat.shape[0]
         for i in range(p):
             sum_variances = sum_variances + explained[i]
-            if sum > 0.5:
-                self.q = i
+            if sum_variances > 0.5:
+                self.q = i+1
                 break
         major_metrics = self.calc_major_metrics(X_PC)
+        print('==> major')
+        print(self.q)
+        # print(major_metrics)
         # quantile
-        self.c1 = np.quantile(major_metrics, 0.05) # 5% outliers
+        self.c1 = np.quantile(major_metrics, 0.90) # 10% outliers from major metrics
+        print(self.c1)
 
         # SELECT C2 THRESHOLD:
         # find r: eigvals lambda i: r+1 -> p: lambdai < 0.2
         # calculate minor metric for each Xj
         # sort by metrics, desc, take 95% percentile
-        self.r = np.searchsorted(eigvals, 0.2)
+        self.r = np.searchsorted(self.eigvals, 0.2)
         minor_metrics = self.calc_minor_metrics(X_PC)
-        self.c2 = np.quantile(minor_metrics, 0.05) # 5% outliers
+        print('==> minor')
+        # print(minor_metrics)
+        print(self.r)
+        self.c2 = np.quantile(minor_metrics, 0.90) # 10% outliers from minor metrics
+        print(self.c2)
 
     def predict(self, X0):
         # CLASSIFICATION for X0 - matrix of new obs
@@ -113,15 +140,15 @@ class PCAAD:
         # calculate minor components metric: sigma(yi**2 / lambdai) i: r+1 -> p
         X0_feat = X0.T
         X0_PC = self.calc_principle_components(X0_feat)
-        X0_major = self.calc_major_metrics(X0_pc)
-        X0_minor = self.calc_major_metrics(X0_pc)
+        X0_major = self.calc_major_metrics(X0_PC)
+        X0_minor = self.calc_major_metrics(X0_PC)
 
         # decision: anomaly if major > c1 or minor > c2
         # normal otherwise
-        n = X0.feat.shape[1]
-        labels = np.ones(n)
+        n = X0_feat.shape[1]
+        labels = np.ones(n, dtype=int)
         for j in range(n):
-            if (X0_major[j] > c1 or X0_minor[j] > c2):
+            if (X0_major[j] > self.c1 or X0_minor[j] > self.c2):
                 labels[j] = -1
 
         # return classification labels for each x: 1 if normal, -1 if anomaly
