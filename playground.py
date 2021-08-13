@@ -29,5 +29,5 @@ from AD import example_md as adexamplesmd
 # adexamples.kde()
 # adexamplesmd.kde()
 
-adexamples.pcaad()
-# adexamplesmd.pcaad()
+# adexamples.pcaad()
+adexamplesmd.pcaad()
