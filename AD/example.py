@@ -11,6 +11,8 @@ from sklearn.ensemble import IsolationForest
 from sklearn.neighbors import LocalOutlierFactor, KernelDensity
 from sklearn.mixture import GaussianMixture
 
+from AD.PCAAD import PCAAD
+
 n_samples = 300
 outlier_percentage = 0.15
 
@@ -30,7 +32,8 @@ def get_random_dataset():
                 **blobs_params)[0],
         4. * (make_moons(n_samples=n_samples, noise=.05, random_state=0)[0] -
             np.array([0.5, 0.25])),
-        14. * (np.random.RandomState(42).rand(n_samples, 2) - 0.5)]
+        14. * (np.random.RandomState(42).rand(n_samples, 2) - 0.5)
+    ]
 
     outliers = rng.uniform(low=-6, high=6, size=(n_outliers, 2))
     return outliers, datasets
@@ -183,5 +186,33 @@ def kde():
         # print(Z)
         contours = plt.contour(xx, yy, Z_contours, linewidths=2)
         # plt.colorbar(contours, shrink=0.8, extend='both')
+
+    plt.show()
+
+def pcaad():
+    outliers, ds = get_random_dataset()
+    print(outliers.shape)
+
+    for dataset_i, inliers in enumerate(ds):
+        X = np.concatenate([inliers, outliers], axis=0)
+        print(X.shape)
+
+        # plt.figure(figsize=(20, 10))
+        plt.subplot(1, len(ds), dataset_i+1)
+        pcaad = PCAAD()
+        pcaad.fit(X)
+        labels = pcaad.predict(X)
+
+        print(labels.shape)
+
+        plot_space = np.c_[xx.ravel(), yy.ravel()]
+        # np.set_printoptions(threshold=sys.maxsize)
+        # print(plot_space)
+        Z = pcaad.predict(plot_space)
+        # Z_contours = Z.reshape(xx.shape)
+
+        # print(Z)
+        # plt.contour(xx, yy, Z_contours, levels=[0], linewidths=2, colors='black')
+        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
 
     plt.show()

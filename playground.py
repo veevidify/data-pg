@@ -27,4 +27,7 @@ from AD import example_md as adexamplesmd
 # adexamplesmd.gaussian_mixture()
 
 # adexamples.kde()
-adexamplesmd.kde()
+# adexamplesmd.kde()
+
+# adexamples.pcaad()
+adexamplesmd.pcaad()
