@@ -20,10 +20,12 @@ class PCAAD:
         # eigvals of orig X
         self.eigvals = None
 
-        # major component decision c1
+        # major component calculation q & decision c1
+        self.q = None
         self.c1 = None
 
-        # minor component decision c2
+        # minor component calculation r & decision c2
+        self.r = None
         self.c2 = None
 
     def calc_principle_components(self, X):
@@ -33,7 +35,7 @@ class PCAAD:
         # pci = eigveci.T dot Xj -> Xj has pc vector px1
         return self.eigvecs.T.dot(X_mc)
 
-    def calc_major_metrics(self, X_PC, q):
+    def calc_major_metrics(self, X_PC):
         # obs matrix's PCA (cols as obs) pxn (from input X or new obs X0)
         # major threshold q < p
 
@@ -43,13 +45,13 @@ class PCAAD:
         metrics = np.zeros(n) # init empty array of metric for each obs
         for j in range(n):
             s = 0
-            for i in range(q):
+            for i in range(self.q):
                 s = s + X_PC[i][j]**2 / self.eigvals[i]
             metrics[j] = s
 
         return metrics
 
-    def calc_minor_metrics(self, X_PC, r):
+    def calc_minor_metrics(self, X_PC):
         # obs matrix's PCA (cols as obs) pxn (from input X or new obs X0)
         # minor threshold r < p
 
@@ -60,7 +62,7 @@ class PCAAD:
         metrics = np.zeros(n) # init empty array of metric for each obs
         for j in range(n):
             s = 0
-            for i in range(r+1, p):
+            for i in range(self.r+1, p):
                 s = s + X_PC[i][j]**2 / self.eigvals[i]
             metrics[j] = s
 
@@ -89,9 +91,9 @@ class PCAAD:
         for i in range(p):
             sum_variances = sum_variances + explained[i]
             if sum > 0.5:
-                q = i
+                self.q = i
                 break
-        major_metrics = self.calc_major_metrics(X_PC, q)
+        major_metrics = self.calc_major_metrics(X_PC)
         # quantile
         self.c1 = np.quantile(major_metrics, 0.05) # 5% outliers
 
@@ -99,20 +101,28 @@ class PCAAD:
         # find r: eigvals lambda i: r+1 -> p: lambdai < 0.2
         # calculate minor metric for each Xj
         # sort by metrics, desc, take 95% percentile
-        r = np.searchsorted(eigvals, 0.2)
-        minor_metrics = self.calc_minor_metrics(X_PC, r)
+        self.r = np.searchsorted(eigvals, 0.2)
+        minor_metrics = self.calc_minor_metrics(X_PC)
         self.c2 = np.quantile(minor_metrics, 0.05) # 5% outliers
 
     def predict(self, X0):
         # CLASSIFICATION for X0 - matrix of new obs
         # get feats X0.T - col is obs, row is feat
-        # get p pcs of each X0j: pci = eigveci.T dot X0j i: 1 -> p
+        # get p PCs of each X0j: pci = eigveci.T dot X0j i: 1 -> p
         # calculate major components metric: sigma(yi**2 / lambdai) i: 1 -> q
         # calculate minor components metric: sigma(yi**2 / lambdai) i: r+1 -> p
+        X0_feat = X0.T
+        X0_PC = self.calc_principle_components(X0_feat)
+        X0_major = self.calc_major_metrics(X0_pc)
+        X0_minor = self.calc_major_metrics(X0_pc)
 
         # decision: anomaly if major > c1 or minor > c2
         # normal otherwise
+        n = X0.feat.shape[1]
+        labels = np.ones(n)
+        for j in range(n):
+            if (X0_major[j] > c1 or X0_minor[j] > c2):
+                labels[j] = -1
 
         # return classification labels for each x: 1 if normal, -1 if anomaly
-
-        pass
+        return labels

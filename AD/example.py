@@ -185,3 +185,6 @@ def kde():
         # plt.colorbar(contours, shrink=0.8, extend='both')
 
     plt.show()
+
+def pca():
+    pass
