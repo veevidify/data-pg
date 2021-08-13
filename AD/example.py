@@ -43,7 +43,7 @@ xx, yy = np.meshgrid(np.linspace(-7, 7, 50),
 
 plt.xlim(-7, 7)
 plt.ylim(-7, 7)
-colors = np.array(['#377eb8', '#ff7f00'])
+colors = np.array(['#67ae67', '#ff7f00'])
 
 def ocsvm():
     outliers, ds = get_random_dataset()
@@ -64,14 +64,13 @@ def ocsvm():
         plot_space = np.c_[xx.ravel(), yy.ravel()]
         # np.set_printoptions(threshold=sys.maxsize)
         # print(plot_space)
-        Z = oc_svm.predict(plot_space)
+        Z = oc_svm.decision_function(plot_space)
         Z_contours = Z.reshape(xx.shape)
 
         # print(Z)
         plt.contour(xx, yy, Z_contours, levels=[0], linewidths=2, colors='black')
-
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 7), cmap=plt.cm.Blues_r)
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
-        # plt.scatter(xx, yy, s=10, color=colors[(Z+1) // 2])
 
     plt.show()
 
@@ -110,11 +109,12 @@ def iforest():
         plot_space = np.c_[xx.ravel(), yy.ravel()]
         # np.set_printoptions(threshold=sys.maxsize)
         # print(plot_space)
-        Z = iforest.predict(plot_space)
+        Z = iforest.decision_function(plot_space)
         Z_contours = Z.reshape(xx.shape)
 
         # print(Z)
         plt.contour(xx, yy, Z_contours, levels=[0], linewidths=2, colors='black')
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 7), cmap=plt.cm.Blues_r)
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
 
     plt.show()
