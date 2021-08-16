@@ -4,6 +4,7 @@ import regression
 from decomposition import example as dcompexamples
 from AD import example as adexamples
 from AD import example_md as adexamplesmd
+from AD import example_pyod as pyodexamples
 
 # kmeans.example.show()
 # regression.example.show()
@@ -16,18 +17,22 @@ from AD import example_md as adexamplesmd
 
 # adexamples.ocsvm()
 # adexamplesmd.ocsvm()
+# pyodexamples.ocsvm()
 
 # adexamples.lof()
 # adexamplesmd.lof()
+# pyodexamples.lof()
 
 # adexamples.iforest()
 # adexamplesmd.iforest()
+# pyodexamples.iforest()
+
+# adexamples.pcaad()
+# adexamplesmd.pcaad()
+pyodexamples.pcaad()
 
 # adexamples.gaussian_mixture()
 # adexamplesmd.gaussian_mixture()
 
-adexamples.kde()
+# adexamples.kde()
 # adexamplesmd.kde()
-
-# adexamples.pcaad()
-# adexamplesmd.pcaad()
