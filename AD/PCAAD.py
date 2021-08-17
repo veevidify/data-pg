@@ -164,5 +164,6 @@ class PCAAD:
 
         major_decision = (X0_major - self.c1)
         minor_decision = (X0_minor - self.c2)
+        return -1.0*(major_decision + abs(major_decision) + minor_decision + abs(minor_decision))
+        # return X0_major**2 / self.c1**2 + X0_minor**2 / self.c2**2
 
-        return major_decision * (np.sign(major_decision) + 1) + minor_decision * (np.sign(minor_decision) + 1)
