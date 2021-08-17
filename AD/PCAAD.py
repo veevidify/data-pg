@@ -118,7 +118,7 @@ class PCAAD:
         # quantile
         self.c1 = np.quantile(major_metrics, 0.90) # 10% outliers from major metrics
         print(self.c1)
-        print(major_metrics)
+        # print(major_metrics)
 
         # SELECT C2 THRESHOLD:
         # find r: eigvals lambda i: r+1 -> p: lambdai < 0.2
@@ -130,7 +130,7 @@ class PCAAD:
         print(self.r)
         self.c2 = np.quantile(minor_metrics, 0.90) # 10% outliers from minor metrics
         print(self.c2)
-        print(minor_metrics)
+        # print(minor_metrics)
 
     def predict(self, X0):
         # CLASSIFICATION for X0 - matrix of new obs
