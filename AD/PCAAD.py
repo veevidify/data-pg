@@ -115,10 +115,10 @@ class PCAAD:
         major_metrics = self.calc_major_metrics(X_PC)
         print('==> major')
         print(self.q)
-        # print(major_metrics)
         # quantile
         self.c1 = np.quantile(major_metrics, 0.90) # 10% outliers from major metrics
         print(self.c1)
+        print(major_metrics)
 
         # SELECT C2 THRESHOLD:
         # find r: eigvals lambda i: r+1 -> p: lambdai < 0.2
@@ -127,10 +127,10 @@ class PCAAD:
         self.r = np.searchsorted(self.eigvals, 0.2)
         minor_metrics = self.calc_minor_metrics(X_PC)
         print('==> minor')
-        # print(minor_metrics)
         print(self.r)
         self.c2 = np.quantile(minor_metrics, 0.90) # 10% outliers from minor metrics
         print(self.c2)
+        print(minor_metrics)
 
     def predict(self, X0):
         # CLASSIFICATION for X0 - matrix of new obs
@@ -141,13 +141,15 @@ class PCAAD:
         X0_feat = X0.T
         X0_PC = self.calc_principle_components(X0_feat)
         X0_major = self.calc_major_metrics(X0_PC)
-        X0_minor = self.calc_major_metrics(X0_PC)
+        X0_minor = self.calc_minor_metrics(X0_PC)
 
         # decision: anomaly if major > c1 or minor > c2
         # normal otherwise
         n = X0_feat.shape[1]
         labels = np.ones(n, dtype=int)
         for j in range(n):
+            # if (X0_minor[j] > self.c2):
+            # if (X0_major[j] > self.c1):
             if (X0_major[j] > self.c1 or X0_minor[j] > self.c2):
                 labels[j] = -1
 
