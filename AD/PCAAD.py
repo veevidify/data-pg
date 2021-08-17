@@ -155,3 +155,14 @@ class PCAAD:
 
         # return classification labels for each x: 1 if normal, -1 if anomaly
         return labels
+
+    def decision_function(self, X0):
+        X0_feat = X0.T
+        X0_PC = self.calc_principle_components(X0_feat)
+        X0_major = self.calc_major_metrics(X0_PC)
+        X0_minor = self.calc_minor_metrics(X0_PC)
+
+        major_decision = (X0_major - self.c1)
+        minor_decision = (X0_minor - self.c2)
+
+        return major_decision * (np.sign(major_decision) + 1) + minor_decision * (np.sign(minor_decision) + 1)
