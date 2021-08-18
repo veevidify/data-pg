@@ -73,7 +73,7 @@ def ocsvm():
         Z_contours = Z.reshape(xx.shape)
 
         # print(Z)
-        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 8), cmap=plt.cm.Blues_r)
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 10), cmap=plt.cm.Blues_r)
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
 
     plt.show()
@@ -124,7 +124,7 @@ def iforest():
         Z_contours = Z.reshape(xx.shape)
 
         # print(Z)
-        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 8), cmap=plt.cm.Blues_r)
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 10), cmap=plt.cm.Blues_r)
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
 
     plt.show()
@@ -159,7 +159,7 @@ def gaussian_mixture():
         # print(Z)
         # contours = plt.contour(xx, yy, Z_contours, linewidths=2)
         # plt.colorbar(contours, shrink=0.8, extend='both')
-        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 8), cmap=plt.cm.Blues_r)
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 10), cmap=plt.cm.Blues_r)
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
 
     plt.show()
@@ -174,7 +174,7 @@ def kde():
 
         # plt.figure(figsize=(20, 10))
         plt.subplot(1, len(ds), dataset_i+1)
-        kde = KernelDensity(algorithm='auto', bandwidth=1.0, kernel='gaussian', leaf_size=40, metric='euclidean')
+        kde = KernelDensity(algorithm='auto', bandwidth=0.8, kernel='gaussian', leaf_size=40, metric='minkowski')
         kde.fit(X)
 
         scores = kde.score_samples(X)
@@ -194,7 +194,7 @@ def kde():
         # print(Z)
         # contours = plt.contour(xx, yy, Z_contours, linewidths=2)
         # plt.colorbar(contours, shrink=0.8, extend='both')
-        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 8), cmap=plt.cm.Blues_r)
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 10), cmap=plt.cm.Blues_r)
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
 
     plt.show()
@@ -226,7 +226,7 @@ def pcaad():
         Z_contours = Z.reshape(xx.shape)
 
         # print(Z)
-        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 8), cmap=plt.cm.Blues_r)
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 10), cmap=plt.cm.Blues_r)
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
 
     plt.show()

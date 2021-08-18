@@ -11,6 +11,8 @@ from pyod.models.iforest import IForest
 from pyod.models.lof import LOF
 from pyod.models.ocsvm import OCSVM
 from pyod.models.loda import LODA
+from pyod.models.knn import KNN
+from pyod.models.abod import ABOD
 
 from sklearn.mixture import GaussianMixture
 
@@ -211,6 +213,74 @@ def loda():
         Z = -1.0 * loda.decision_function(plot_space)
         Z_contours = Z.reshape(xx.shape)
         plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 10), cmap=plt.cm.Blues_r)
+
+        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[labels])
+
+    plt.show()
+
+def knn():
+    outliers, ds = get_random_dataset()
+    print(outliers.shape)
+
+    for dataset_i, inliers in enumerate(ds):
+        X = np.concatenate([inliers, outliers], axis=0)
+        print(X.shape)
+
+        # plt.figure(figsize=(20, 10))
+        plt.subplot(1, len(ds), dataset_i+1)
+
+        knn = KNN(contamination=outlier_percentage, n_neighbors=35, method='largest', leaf_size=40, radius=0.1, metric='minkowski', metric_params=None)
+
+        knn.fit(X)
+        labels = knn.predict(X)
+        print(labels.shape)
+
+        plot_space = np.c_[xx.ravel(), yy.ravel()]
+        # np.set_printoptions(threshold=sys.maxsize)
+        # print(plot_space)
+
+        Z = knn.predict(plot_space)
+        print(Z)
+        Z_contours = Z.reshape(xx.shape)
+        plt.contour(xx, yy, Z_contours, levels=[0.5], linewidths=2, colors='black')
+
+        Z = -1.0 * knn.decision_function(plot_space)
+        Z_contours = Z.reshape(xx.shape)
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 10), cmap=plt.cm.Blues_r)
+
+        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[labels])
+
+    plt.show()
+
+def fastabod():
+    outliers, ds = get_random_dataset()
+    print(outliers.shape)
+
+    for dataset_i, inliers in enumerate(ds):
+        X = np.concatenate([inliers, outliers], axis=0)
+        print(X.shape)
+
+        # plt.figure(figsize=(20, 10))
+        plt.subplot(1, len(ds), dataset_i+1)
+
+        fastabod = ABOD(contamination=outlier_percentage, n_neighbors=35, method='fast')
+
+        fastabod.fit(X)
+        labels = fastabod.predict(X)
+        print(labels.shape)
+
+        plot_space = np.c_[xx.ravel(), yy.ravel()]
+        # np.set_printoptions(threshold=sys.maxsize)
+        # print(plot_space)
+
+        # Z = fastabod.predict(plot_space)
+        # print(Z)
+        # Z_contours = Z.reshape(xx.shape)
+        # plt.contour(xx, yy, Z_contours, levels=[0.5], linewidths=2, colors='black')
+
+        # Z = -1.0 * fastabod.decision_function(plot_space)
+        # Z_contours = Z.reshape(xx.shape)
+        # plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 10), cmap=plt.cm.Blues_r)
 
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[labels])
 

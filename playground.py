@@ -37,4 +37,8 @@ from AD import example_pyod as pyodexamples
 # adexamples.kde()
 # adexamplesmd.kde()
 
-pyodexamples.loda()
+# pyodexamples.loda()
+
+# pyodexamples.knn()
+
+pyodexamples.fastabod()
