@@ -205,6 +205,7 @@ def gaussian_mixture():
         ax.set_ylabel('PC2')
         ax.set_zlabel('PC3')
         ax.scatter(plx, ply, plz, color=colors[(labels+1)//2]) # colors -1, 1 mapped to 0, 1
+        # ax.scatter(plx, ply, plz, c=scores)
 
     plt.show()
 
@@ -219,7 +220,7 @@ def kde():
         X_scaled = StandardScaler().fit_transform(X)
         # X_scaled = X
 
-        kde = KernelDensity(algorithm='auto', bandwidth=1.0, kernel='gaussian', leaf_size=40, metric='euclidean')
+        kde = KernelDensity(algorithm='auto', bandwidth=0.5, kernel='gaussian', leaf_size=40, metric='minkowski')
         kde.fit(X)
 
         scores = kde.score_samples(X)
@@ -249,6 +250,7 @@ def kde():
         ax.set_ylabel('PC2')
         ax.set_zlabel('PC3')
         ax.scatter(plx, ply, plz, color=colors[(labels+1)//2]) # colors -1, 1 mapped to 0, 1
+        # ax.scatter(plx, ply, plz, c=scores)
 
     plt.show()
 

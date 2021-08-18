@@ -10,6 +10,7 @@ from pyod.models.pca import PCA
 from pyod.models.iforest import IForest
 from pyod.models.lof import LOF
 from pyod.models.ocsvm import OCSVM
+from pyod.models.loda import LODA
 
 from sklearn.mixture import GaussianMixture
 
@@ -38,12 +39,12 @@ def get_random_dataset():
     outliers = rng.uniform(low=-6, high=6, size=(n_outliers, 2))
     return outliers, datasets
 
-xx, yy = np.meshgrid(np.linspace(-7, 7, 50),
-                     np.linspace(-7, 7, 50))
+xx, yy = np.meshgrid(np.linspace(-7, 7, 75),
+                     np.linspace(-7, 7, 75))
 
 plt.xlim(-7, 7)
 plt.ylim(-7, 7)
-colors = np.array(['#67ae67', '#ff7f00'])
+colors = np.array(['#ff7f00','#67ae98'])
 
 def ocsvm():
     outliers, ds = get_random_dataset()
@@ -70,11 +71,11 @@ def ocsvm():
         Z_contours = Z.reshape(xx.shape)
         plt.contour(xx, yy, Z_contours, levels=[0.5], linewidths=2, colors='black')
 
-        Z = oc_svm.decision_function(plot_space)
+        Z = -1.0 * oc_svm.decision_function(plot_space)
         Z_contours = Z.reshape(xx.shape)
-        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 7), cmap=plt.cm.Blues_r)
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 8), cmap=plt.cm.Blues_r)
 
-        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
+        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[labels])
 
     plt.show()
 
@@ -104,11 +105,11 @@ def lof():
         Z_contours = Z.reshape(xx.shape)
         plt.contour(xx, yy, Z_contours, levels=[0.5], linewidths=2, colors='black')
 
-        Z = lof.decision_function(plot_space)
+        Z = -1.0 * lof.decision_function(plot_space)
         Z_contours = Z.reshape(xx.shape)
-        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 7), cmap=plt.cm.Blues_r)
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 8), cmap=plt.cm.Blues_r)
 
-        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
+        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[labels])
 
     plt.show()
 
@@ -138,11 +139,11 @@ def iforest():
         Z_contours = Z.reshape(xx.shape)
         plt.contour(xx, yy, Z_contours, levels=[0.5], linewidths=2, colors='black')
 
-        Z = iforest.decision_function(plot_space)
+        Z = -1.0 * iforest.decision_function(plot_space)
         Z_contours = Z.reshape(xx.shape)
-        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 7), cmap=plt.cm.Blues_r)
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 8), cmap=plt.cm.Blues_r)
 
-        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
+        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[labels])
 
     plt.show()
 
@@ -173,10 +174,44 @@ def pcaad():
         Z_contours = Z.reshape(xx.shape)
         plt.contour(xx, yy, Z_contours, levels=[0.5], linewidths=2, colors='black')
 
-        Z = pcaad.decision_function(plot_space)
+        Z = -1.0 * pcaad.decision_function(plot_space)
         Z_contours = Z.reshape(xx.shape)
-        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 7), cmap=plt.cm.Blues_r)
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 8), cmap=plt.cm.Blues_r)
 
-        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
+        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[labels])
+
+    plt.show()
+
+def loda():
+    outliers, ds = get_random_dataset()
+    print(outliers.shape)
+
+    for dataset_i, inliers in enumerate(ds):
+        X = np.concatenate([inliers, outliers], axis=0)
+        print(X.shape)
+
+        # plt.figure(figsize=(20, 10))
+        plt.subplot(1, len(ds), dataset_i+1)
+
+        loda = LODA(contamination=outlier_percentage, n_bins=20, n_random_cuts=400)
+
+        loda.fit(X)
+        labels = loda.predict(X)
+        print(labels.shape)
+
+        plot_space = np.c_[xx.ravel(), yy.ravel()]
+        # np.set_printoptions(threshold=sys.maxsize)
+        # print(plot_space)
+
+        Z = loda.predict(plot_space)
+        print(Z)
+        Z_contours = Z.reshape(xx.shape)
+        plt.contour(xx, yy, Z_contours, levels=[0.5], linewidths=2, colors='black')
+
+        Z = -1.0 * loda.decision_function(plot_space)
+        Z_contours = Z.reshape(xx.shape)
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 10), cmap=plt.cm.Blues_r)
+
+        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[labels])
 
     plt.show()
