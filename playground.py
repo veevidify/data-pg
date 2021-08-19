@@ -41,4 +41,6 @@ from AD import example_pyod as pyodexamples
 
 # pyodexamples.knn()
 
-pyodexamples.fastabod()
+# pyodexamples.fastabod()
+
+pyodexamples.ensemble_knn()

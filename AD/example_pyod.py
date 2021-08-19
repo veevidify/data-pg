@@ -15,6 +15,9 @@ from pyod.models.knn import KNN
 from pyod.models.abod import ABOD
 
 from sklearn.mixture import GaussianMixture
+from pyod.utils.utility import standardizer
+from pyod.models.combination import average as ensemble_average
+from pyod.models.combination import majority_vote as ensemble_instances
 
 n_samples = 300
 outlier_percentage = 0.15
@@ -281,6 +284,43 @@ def fastabod():
         # Z = -1.0 * fastabod.decision_function(plot_space)
         # Z_contours = Z.reshape(xx.shape)
         # plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 10), cmap=plt.cm.Blues_r)
+
+        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[labels])
+
+    plt.show()
+
+def ensemble_knn():
+    outliers, ds = get_random_dataset()
+    print(outliers.shape)
+
+    for dataset_i, inliers in enumerate(ds):
+        X = np.concatenate([inliers, outliers], axis=0)
+        print(X.shape)
+
+        # plt.figure(figsize=(20, 10))
+        plt.subplot(1, len(ds), dataset_i+1)
+
+        nns = [5, 25, 35, 45]
+        rs = [0.1, 0.4, 0.8, 1.0]
+        ms = ['euclidean', 'minkowski']
+        scores = np.zeros((X.shape[0], len(nns) * len(rs) * len(ms)))
+        i = 0
+        # TODO: use itertools
+        for nn in nns:
+            for r in rs:
+                for m in ms:
+                    knn_i = KNN(contamination=outlier_percentage, n_neighbors=nn, method='largest', leaf_size=nn, radius=r, metric=m, metric_params=None)
+                    knn_i.fit(X)
+                    scores[:, i] = knn_i.decision_scores_
+                    i = i + 1
+
+        std_scores = standardizer(scores)
+        combi_avg = ensemble_average(std_scores)
+
+        threshold = np.quantile(combi_avg, 0.15) # 15% outliers
+        labels = np.zeros(X.shape[0], dtype=int)
+        labels[np.where(combi_avg < threshold)] = 1
+        print(labels)
 
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[labels])
 
