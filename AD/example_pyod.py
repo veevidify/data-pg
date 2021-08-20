@@ -300,8 +300,8 @@ def ensemble_knn():
         # plt.figure(figsize=(20, 10))
         plt.subplot(1, len(ds), dataset_i+1)
 
-        nns = [5, 25, 35, 45]
-        rs = [0.1, 0.4, 0.8, 1.0]
+        nns = [5, 25, 35, 45, 55]
+        rs = [0.1, 0.4, 0.8, 1.0, 1.2]
         ms = ['euclidean', 'minkowski']
         scores = np.zeros((X.shape[0], len(nns) * len(rs) * len(ms)))
         i = 0
@@ -317,9 +317,9 @@ def ensemble_knn():
         std_scores = standardizer(scores)
         combi_avg = ensemble_average(std_scores)
 
-        threshold = np.quantile(combi_avg, 0.15) # 15% outliers
+        threshold = np.quantile(combi_avg, 0.85) # 15% outliers
         labels = np.zeros(X.shape[0], dtype=int)
-        labels[np.where(combi_avg < threshold)] = 1
+        labels[np.where(combi_avg > threshold)] = 1
         print(labels)
 
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[labels])
