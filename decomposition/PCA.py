@@ -14,14 +14,17 @@ def PCA(X):
     # all eigvecs: pxp
     eigvals, eigvecs = np.linalg.eig(covariance_matrix)
 
+    idx = np.argsort(eigvals)[::-1]
+    eigenvalues = eigvals[idx]
+    eigenvectors = eigvecs[:,idx]
+
     # diag matrix of eigvals pxp
     explained_variances = []
+    by_total = 1 / np.sum(eigenvalues)
+    for i in range(len(eigenvalues)):
+        explained_variances.append(eigenvalues[i] * by_total)
 
-    by_total = 1 / np.sum(eigvals)
-    for i in range(len(eigvals)):
-        explained_variances.append(eigvals[i] * by_total)
-
-    return eigvals, eigvecs, explained_variances
+    return eigenvalues, eigenvectors, explained_variances
 
 def PCA2(X):
     X_mc = X - X.mean(axis=0)
