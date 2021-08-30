@@ -7,9 +7,9 @@ def get_pca(X):
     # X_scaled = StandardScaler().fit_transform(X)
     X_scaled = X
 
-    X_mc,explained,U,S,Vt = PCA2(X_scaled)
-    total = np.sum(S**2)
-    explained = [np.square(si) / total for si in S]
+    X_mc,explained,U,eigvals,Vt = PCA2(X_scaled)
+    total = np.sum(eigvals)
+    explained = [si / total for si in eigvals]
     print(explained)
 
     W = Vt.T[:, :3]

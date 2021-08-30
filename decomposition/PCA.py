@@ -29,7 +29,13 @@ def PCA(X):
 def PCA2(X):
     X_mc = X - X.mean(axis=0)
     U,S,Vt = np.linalg.svd(X_mc)
-    total = np.sum(S**2)
-    explained = [np.square(si) / total for si in S]
 
-    return X_mc,explained,U,S,Vt
+    S_sq = S**2
+    idx = np.argsort(S_sq)[::-1]
+    eigenvalues = S_sq[idx]
+    eigenvectors = Vt.T[:,idx]
+
+    by_total = 1/np.sum(S_sq)
+    explained = [si_sq * by_total for si_sq in S_sq]
+
+    return X_mc,explained,U,eigenvalues,eigenvectors.T
