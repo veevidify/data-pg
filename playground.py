@@ -27,11 +27,14 @@ from AD import example_pyod as pyodexamples
 # adexamplesmd.iforest()
 # pyodexamples.iforest()
 
-adexamples.pcaad()
+# adexamples.pcaad()
 # adexamplesmd.pcaad()
 # pyodexamples.pcaad()
 
 # adexamples.gaussian_mixture()
+# adexamplesmd.gaussian_mixture()
+
+adexamples.bgmm()
 # adexamplesmd.gaussian_mixture()
 
 # adexamples.kde()

@@ -9,7 +9,7 @@ from sklearn.datasets import make_blobs, make_moons
 from sklearn.covariance import EllipticEnvelope
 from sklearn.ensemble import IsolationForest
 from sklearn.neighbors import LocalOutlierFactor, KernelDensity
-from sklearn.mixture import GaussianMixture
+from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
 
 from AD.PCAAD import PCAAD
 
@@ -161,6 +161,40 @@ def gaussian_mixture():
         # plt.colorbar(contours, shrink=0.8, extend='both')
         plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 10), cmap=plt.cm.Blues_r)
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
+
+    plt.show()
+
+def bgmm():
+    fig = plt.figure(figsize=(30, 10))
+
+    outliers, ds = get_random_dataset()
+
+    for dataset_i, inliers in enumerate(ds):
+        X = np.concatenate([inliers, outliers], axis=0)
+        ax = fig.add_subplot(1, len(ds), dataset_i+1)
+        ax.set_aspect('equal')
+
+        gmm = BayesianGaussianMixture(covariance_type='full', init_params='random', weight_concentration_prior_type='dirichlet_process', weight_concentration_prior=1e2, max_iter=400, n_components=7, n_init=7)
+        gmm.fit(X)
+
+        scores = gmm.score_samples(X)
+        threshold = np.quantile(scores, 0.15) # 15% outliers
+        labels = np.zeros(X.shape[0], dtype=int)
+        labels[np.where(scores < threshold)] = 1
+
+        plot_space = np.c_[xx.ravel(), yy.ravel()]
+        Z = gmm.score_samples(plot_space)
+        Z_labels = np.zeros(plot_space.shape[0], dtype=int)
+        Z_labels[np.where(Z < threshold)] = 1
+        Z_contours = Z_labels.reshape(xx.shape)
+        ax.contour(xx, yy, Z_contours, levels=[0.5], linewidths=2, colors='black')
+
+        Z = gmm.score_samples(plot_space)
+        Z_contours = Z.reshape(xx.shape)
+        ax.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 10), cmap=plt.cm.Blues_r)
+        ax.scatter(X[:, 0], X[:, 1], s=10, color=colors[labels])
+
+        print(np.round(gmm.weights_, 3))
 
     plt.show()
 
