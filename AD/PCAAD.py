@@ -152,7 +152,8 @@ class PCAAD:
 
         major_decision = (major_metrics - self.c1)
         minor_decision = (minor_metrics - self.c2)
-        self.decision_scores_ = 1.0*(major_decision + abs(major_decision) + minor_decision + abs(minor_decision))
+        #self.decision_scores_ = 1.0*(major_decision + abs(major_decision) + minor_decision + abs(minor_decision))
+        self.decision_scores_ = (major_metrics**2/self.c1**2 + minor_metrics**2/self.c2**2 - 1)
 
     def predict(self, X0):
         # CLASSIFICATION for X0 - matrix of new obs
@@ -172,7 +173,8 @@ class PCAAD:
         for j in range(n):
             # if (X0_minor[j] > self.c2):
             # if (X0_major[j] > self.c1):
-            if (X0_major[j] > self.c1 or X0_minor[j] > self.c2):
+            #if (X0_major[j] > self.c1 or X0_minor[j] > self.c2):
+            if (X0_major[j]**2/self.c1**2 + X0_minor[j]**2/self.c2**2 > 1):
                 labels[j] = 1
 
         # return classification labels for each x: 1 if normal, -1 if anomaly
@@ -186,6 +188,6 @@ class PCAAD:
 
         major_decision = (X0_major - self.c1)
         minor_decision = (X0_minor - self.c2)
-        return 1.0*(major_decision + abs(major_decision) + minor_decision + abs(minor_decision))
-        # return X0_major**2 / self.c1**2 + X0_minor**2 / self.c2**2
+        #return 1.0*(major_decision + abs(major_decision) + minor_decision + abs(minor_decision))
+        return (X0_major**2/self.c1**2 + X0_minor**2/self.c2**2 - 1)
 
