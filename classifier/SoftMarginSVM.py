@@ -1,5 +1,4 @@
 import numpy as np
-
 from cvxopt import matrix, solvers
 
 class SoftMarginSVM:
