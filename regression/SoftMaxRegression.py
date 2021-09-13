@@ -1,4 +1,3 @@
-
 import numpy as np
 from scipy import sparse
 
@@ -13,7 +12,10 @@ class SoftMaxRegression:
         return A
 
     def convert_labels(self, y, C):
-        Y = sparse.coo_matrix((np.ones_like(y), (y, np.arange(len(y)))), shape = (C, len(y))).toarray()
+        Y = sparse.coo_matrix(
+            (np.ones_like(y), (y, np.arange(len(y)))),
+            shape = (C, len(y))
+        ).toarray()
         return Y
 
     def cost(self, X, Y, W):
@@ -25,7 +27,7 @@ class SoftMaxRegression:
         E = A - Y
         return X.dot(E.T)
 
-    def softmax_regression(self, W_init, eta, tol=1e-4, max_count=10000):
+    def fit(self, W_init, eta, tol=1e-4, max_count=10000):
         W = [W_init]
         C = W_init.shape[1]
         Y = self.convert_labels(self.y, C)
@@ -39,7 +41,7 @@ class SoftMaxRegression:
             mix_ids = np.random.permutation(N)
             for i in mix_ids:
                 xi = self.X[:, i].reshape(d, 1)
-                yi = Y[:, i].reshape[C, 1]
+                yi = Y[:, i].reshape(C, 1)
                 ai = self.softmax_stable(np.dot(W[-1].T, xi))
                 W_new = W[-1] + eta*xi.dot((yi - ai).T)
                 c += 1
