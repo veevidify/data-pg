@@ -1,10 +1,23 @@
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 
-from decomposition.PCA import PCA
+# todo: refactor this into the class
+def PCA(X):
+    X_mc = X - X.mean(axis=0)
+    U,S,Vt = np.linalg.svd(X_mc)
+
+    S_sq = S**2
+    idx = np.argsort(S_sq)[::-1]
+    eigenvalues = S_sq[idx]
+    eigenvectors = Vt.T[:,idx]
+
+    by_total = 1/np.sum(S_sq)
+    explained = [si_sq * by_total for si_sq in S_sq]
+
+    return eigenvalues, eigenvectors, explained
 
 class PCAAD:
-    def __init__(self):
+    def __init__(self, contamination=0.05):
         # nxp: each row is an obs, each col is a feat, standard-scaled
         self.X = None
 
@@ -27,6 +40,9 @@ class PCAAD:
         # minor component calculation r & decision c2
         self.r = None
         self.c2 = None
+        self.decision_scores_ = None
+
+        self.contamination = contamination
 
     def calc_principle_components(self, X):
         # X is col vec of an obs or matrix of col vecs pxn, each col is an obs (from input X or new obs X0)
@@ -115,8 +131,10 @@ class PCAAD:
         major_metrics = self.calc_major_metrics(X_PC)
         print('==> major')
         print(self.q)
+
+        outlier_percentage = self.contamination / 2
         # quantile
-        self.c1 = np.quantile(major_metrics, 0.90) # 10% outliers from major metrics
+        self.c1 = np.quantile(major_metrics, 1-outlier_percentage) # 10% outliers from major metrics
         print(self.c1)
         # print(major_metrics)
 
@@ -128,9 +146,14 @@ class PCAAD:
         minor_metrics = self.calc_minor_metrics(X_PC)
         print('==> minor')
         print(self.r)
-        self.c2 = np.quantile(minor_metrics, 0.90) # 10% outliers from minor metrics
+        self.c2 = np.quantile(minor_metrics, 1-outlier_percentage) # 10% outliers from minor metrics
         print(self.c2)
         # print(minor_metrics)
+
+        major_decision = (major_metrics - self.c1)
+        minor_decision = (minor_metrics - self.c2)
+        #self.decision_scores_ = 1.0*(major_decision + abs(major_decision) + minor_decision + abs(minor_decision))
+        self.decision_scores_ = (major_metrics**2/self.c1**2 + minor_metrics**2/self.c2**2 - 1)
 
     def predict(self, X0):
         # CLASSIFICATION for X0 - matrix of new obs
@@ -146,12 +169,13 @@ class PCAAD:
         # decision: anomaly if major > c1 or minor > c2
         # normal otherwise
         n = X0_feat.shape[1]
-        labels = np.ones(n, dtype=int)
+        labels = np.zeros(n, dtype=int)
         for j in range(n):
             # if (X0_minor[j] > self.c2):
             # if (X0_major[j] > self.c1):
-            if (X0_major[j] > self.c1 or X0_minor[j] > self.c2):
-                labels[j] = -1
+            #if (X0_major[j] > self.c1 or X0_minor[j] > self.c2):
+            if (X0_major[j]**2/self.c1**2 + X0_minor[j]**2/self.c2**2 > 1):
+                labels[j] = 1
 
         # return classification labels for each x: 1 if normal, -1 if anomaly
         return labels
@@ -164,6 +188,6 @@ class PCAAD:
 
         major_decision = (X0_major - self.c1)
         minor_decision = (X0_minor - self.c2)
-        return -1.0*(major_decision + abs(major_decision) + minor_decision + abs(minor_decision))
-        # return X0_major**2 / self.c1**2 + X0_minor**2 / self.c2**2
+        #return 1.0*(major_decision + abs(major_decision) + minor_decision + abs(minor_decision))
+        return (X0_major**2/self.c1**2 + X0_minor**2/self.c2**2 - 1)
 

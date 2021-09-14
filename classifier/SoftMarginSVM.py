@@ -1,20 +1,23 @@
 import numpy as np
-
 from cvxopt import matrix, solvers
 
 class SoftMarginSVM:
-    def __init__(self, N, C, X0, X1, X, y):
+    def __init__(self, N, C, X0, X1):
         self.N = N
-        self. C = C
+        self.C = C
         self.X0 = X0
         self.X1 = X1
-        self.X = X
-        self.y = y
+
+        self.X = np.concatenate((X0.T, X1.T), axis = 1)
+        self.y = np.concatenate((np.ones((1, N)), -1*np.ones((1, N))), axis = 1)
 
         self.X0_bar = np.vstack((X0.T, np.ones((1, N)))) # extended data
         self.X1_bar = np.vstack((X1.T, np.ones((1, N)))) # extended data
-        self.Z = np.hstack((X0_bar, -X1_bar))
+        self.Z = np.hstack((self.X0_bar, -self.X1_bar))
         self.lam = 1./C
+        
+        self.w = None
+        self.b = None
 
     def duality_solve(self):
         V = np.concatenate((self.X0.T, -self.X1.T), axis=1)
@@ -32,16 +35,19 @@ class SoftMarginSVM:
         S = np.where(l > 1e-5)[0]
         S2 = np.where(l < .999*self.C)[0]
         M = [val for val in S if val in S2]
+        
+        yM = self.y[:, M]
+        XM = self.X[:, M]
 
-        XT = self.X.T
         VS = V[:, S]
         lS = l[S]
-        yM = y[M]
-        XM = XT[:, M]
-
+        
         w_dual = VS.dot(lS).reshape(-1, 1)
         b_dual = np.mean(yM.T - w_dual.T.dot(XM))
-        return (w_dual.T, b_dual)
+
+        self.w = w_dual
+        self.b = b_dual
+        return self
 
     def cost(self, w):
         u = w.T.dot(self.Z)
@@ -68,9 +74,15 @@ class SoftMarginSVM:
                 break
         return w
 
-    def unconstraint_opt_solve(self):
+    def sgd_solve(self):
         w0 = np.random.randn(self.X0_bar.shape[0], 1)
         w = self.gd(w0, eta=0.001)
         w_hinge = w[:-1].reshape(-1, 1)
         b_hinge = w[-1]
-        return w_hinge.T, b_hinge
+
+        self.w = w_hinge
+        self.b = b_hinge
+        return self
+
+    def get_hyperplane(self):
+        return self.w, self.b

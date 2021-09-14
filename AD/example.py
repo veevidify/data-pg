@@ -243,7 +243,7 @@ def pcaad():
 
         # plt.figure(figsize=(20, 10))
         plt.subplot(1, len(ds), dataset_i+1)
-        pcaad = PCAAD()
+        pcaad = PCAAD(contamination=0.15)
         pcaad.fit(X)
         labels = pcaad.predict(X)
         print(labels.shape)

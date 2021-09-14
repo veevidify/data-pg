@@ -26,7 +26,7 @@ def PCA(X):
 
     return eigenvalues, eigenvectors, explained_variances
 
-def PCA2(X):
+def PCA_SVD(X):
     X_mc = X - X.mean(axis=0)
     U,S,Vt = np.linalg.svd(X_mc)
 

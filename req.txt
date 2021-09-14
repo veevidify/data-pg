@@ -64,7 +64,7 @@ pandocfilters==1.4.3
 parso==0.8.2
 patsy==0.5.1
 pexpect==4.8.0
--e git+ssh://git@git.opusv.com.au/vietn/data-pg.git@76e503270c5ce897ae10e52d9319e9f0afa709ce#egg=pg
+-e git+ssh://git@git.opusv.com.au/vietn/data-pg.git@c4d7fce4b91846187638375bbb25261f3fad4535#egg=pg
 pickleshare==0.7.5
 Pillow==8.3.1
 prometheus-client==0.11.0
