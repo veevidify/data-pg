@@ -20,8 +20,8 @@ class LogisticSigmoidRegression:
             for i in mix_id:
                 xi = self.X[:, i].reshape(d, 1)
                 yi = self.y[i]
-                zi = self.sigmoid(np.dot(w[-1].T, xi))
-                w_new = w[-1] + eta*(yi - zi)*xi
+                ai = self.sigmoid(np.dot(w[-1].T, xi))
+                w_new = w[-1] + eta*(yi - ai)*xi
                 count += 1
                 if (count % check_w_after == 0):
                     if (np.linalg.norm(w_new - w[-check_w_after]) < tol):
