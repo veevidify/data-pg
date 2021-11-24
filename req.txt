@@ -70,7 +70,6 @@ pexpect==4.8.0
 -e git+ssh://git@git.opusv.com.au/vietn/data-pg.git@c4d7fce4b91846187638375bbb25261f3fad4535#egg=pg
 pickleshare==0.7.5
 Pillow==8.3.1
-pkg_resources==0.0.0
 prometheus-client==0.11.0
 prompt-toolkit==3.0.19
 protobuf==3.17.3
