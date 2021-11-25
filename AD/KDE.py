@@ -6,16 +6,42 @@ from sklearn.metrics.pairwise import rbf_kernel
 
 from cvxopt import matrix, solvers
 
+from sklearn.model_selection import GridSearchCV, LeaveOneOut, KFold
+
 # implementation based on https://github.com/lminvielle/mom-kde/blob/master/libs/kde_lib.py
 class RKDE:
-    def __init__(self, X, Xplot, sigma, rho_type='hampel'):
+    def __init__(self, X, Xplot, sigma=None, rho_type='hampel'):
         self.X = X
         self.Xplot = Xplot
-        self.sigma = sigma
         self.rho_type = rho_type
         
         self.n, self.d = X.shape
+        
+        if (sigma=None):
+            self.sigma, _, _ = self.choose_sigma_via_cv()
+            
+        else:
+            self.sigma = sigma
 
+    def choose_sigma_via_cv(self, loo=False, kfold_splits=5):
+        # search for appopriate sigma using CV on regular KDE
+        b = np.logspace(-1.5, 0.5, 80)
+        if (loo):
+            grid_search = GridSearchCV(
+                KernelDensity(kernel='gaussian'),
+                {'bandwidth': b},
+                cv=LeaveOneOut())
+        else:
+            grid_search = GridSearchCV(
+                KernelDensity(kernel='gaussian'),
+                {'bandwidth': b},
+                cv=KFold(n_splits=kfold_splits))
+        
+        grid_search.fit(self.X)
+        sigma = grid_search.best_params_['bandwidth']
+        losses = grid_search.cv_results_['mean_test_score']
+        return sigma, b, losses
+    
     # (Huber, 1964)
     def rho(self, rho_type, x, a=0, b=0, c=0):
         if (rho_type == 'huber'):
@@ -139,11 +165,10 @@ class RKDE:
         w, norm, losses = self.kirwls(Ksigma, self.rho_type, self.n, a, b, c, alpha, max_iter)
         Kplot = rbf_kernel(Xplot, X, gamma=gamma) * (2 * np.pi * self.sigma**2)**(-d/2.0)
         z = np.dot(Kplot, w)
-        return z, w
         
-
-    def predict():
-        pass
+        # return a collection of weighted kdes
+        return z, w
+    
 
     def decision_function():
         pass
