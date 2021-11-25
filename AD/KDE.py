@@ -170,5 +170,5 @@ class RKDE:
         return z, w
     
 
-    def decision_function():
+    def score_samples(self, X):
         pass
