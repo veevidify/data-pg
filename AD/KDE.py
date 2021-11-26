@@ -146,7 +146,7 @@ class RKDE:
             
         return w, norm, losses_seq
     
-    def fit():
+    def fit(self, alpha=1e-7, max_iter=100):
         gamma = 1.0 / (2 * (self.sigma**2))
         # gaussian kernel matrix
         Ksigma = rbf_kernel(self.X, self.X, gamma=gamma) * (2 * np.pi * self.sigma**2)**(-d/2.0)
@@ -154,8 +154,6 @@ class RKDE:
         # run kirwls using norm1 abs loss to get set of good-enough a, b, c
         # (Huber, 1964)
         a = b = c = 0
-        alpha = 1e-7
-        max_iter = 100
         w, norm, losses = self.kirwls(Ksigma, rho_type='abs', self.n, a, b, c, alpha, max_iter)
         a = np.median(norm)
         b = np.percentile(norm, 75)
