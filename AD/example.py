@@ -29,8 +29,8 @@ def get_random_dataset():
                 **blobs_params)[0],
         make_blobs(centers=[[2, 2], [-2, -2]], cluster_std=[0.5, 0.5],
                 **blobs_params)[0],
-        # make_blobs(centers=[[2, 2], [-2, -2]], cluster_std=[1.5, .3],
-        #         **blobs_params)[0],
+        make_blobs(centers=[[2, 2], [-2, -2]], cluster_std=[1.5, .3],
+                **blobs_params)[0],
         4. * (make_moons(n_samples=n_samples, noise=.05, random_state=0)[0] -
             np.array([0.5, 0.25])),
         # 14. * (np.random.RandomState(42).rand(n_samples, 2) - 0.5)

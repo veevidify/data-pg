@@ -148,6 +148,8 @@ class RKDE:
             if ((np.abs(J - J_prev) < (J_prev * alpha)) or (i == max_iter)):
                 loop = False
 
+            i = i+1
+
         return w, norm1, losses_seq
 
     def fit(self, X, alpha=1e-7, max_iter=100):
@@ -159,17 +161,20 @@ class RKDE:
 
         gamma = 1.0 / (2 * (self.sigma**2))
         # gaussian kernel matrix
+        print('== calculating Ks')
         Ksigma = rbf_kernel(X, X, gamma=gamma) * (2 * np.pi * self.sigma**2)**(-self.d/2.0)
 
         # run kirwls using norm1 abs loss to get set of good-enough a, b, c
         # (Huber, 1964)
         a = b = c = 0
+        print('== finding a b c via kirwls with abs loss')
         w, norm, losses = self.kirwls(Ksigma, rho_type='abs', n=self.n, a=a, b=b, c=c, alpha=alpha, max_iter=max_iter)
         a = np.median(norm)
         b = np.percentile(norm, 75)
         c = np.percentile(norm, 95)
 
         # kirwls to model rkde
+        print('== finding w via kirwls with hampel loss')
         w, norm, losses = self.kirwls(Ksigma, self.rho_type, self.n, a, b, c, alpha, max_iter)
         z = np.dot(Ksigma, w)
 
@@ -185,6 +190,7 @@ class RKDE:
         n_pred = X.shape[0]
         Ksigma = np.zeros((n_pred, self.n))
 
+        print('== obtaining Ks on x0')
         for d_i in range(self.d):
             # observations are rows, so receiving & reshaping to column
             temp_xpred = X[:, d_i].reshape((-1, 1))
