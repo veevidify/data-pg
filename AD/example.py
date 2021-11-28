@@ -255,16 +255,16 @@ def rkde():
         labels[np.where(scores < threshold)] = -1
         print(labels)
 
-        # plot_space = np.c_[xx.ravel(), yy.ravel()]
+        plot_space = np.c_[xx.ravel(), yy.ravel()]
         # np.set_printoptions(threshold=sys.maxsize)
         # print(plot_space)
-        # Z = rkde.score_samples(plot_space)
-        # Z_contours = Z.reshape(xx.shape)
+        Z = rkde.score_samples(plot_space)
+        Z_contours = Z.reshape(xx.shape)
 
-        # print(Z)
-        # contours = plt.contour(xx, yy, Z_contours, linewidths=2)
-        # plt.colorbar(contours, shrink=0.8, extend='both')
-        # plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 10), cmap=plt.cm.Blues_r)
+        print(Z)
+        contours = plt.contour(xx, yy, Z_contours, linewidths=2)
+        plt.colorbar(contours, shrink=0.8, extend='both')
+        plt.contourf(xx, yy, Z_contours, levels=np.linspace(Z_contours.min(), Z_contours.max(), 10), cmap=plt.cm.Blues_r)
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[(labels+1) // 2])
 
     plt.show()
