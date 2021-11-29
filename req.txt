@@ -13,6 +13,7 @@ certifi==2021.5.30
 cffi==1.14.6
 charset-normalizer==2.0.3
 combo==0.1.2
+cvxopt==1.2.7
 cycler==0.10.0
 decorator==5.0.9
 defusedxml==0.7.1
@@ -67,7 +68,7 @@ pandocfilters==1.4.3
 parso==0.8.2
 patsy==0.5.1
 pexpect==4.8.0
--e git+ssh://git@git.opusv.com.au/vietn/data-pg.git@c4d7fce4b91846187638375bbb25261f3fad4535#egg=pg
+-e git+ssh://git@git.opusv.com.au/vietn/data-pg.git@9559326bfe593802ff18f3262e2cbee0f28ad424#egg=pg
 pickleshare==0.7.5
 Pillow==8.3.1
 prometheus-client==0.11.0
