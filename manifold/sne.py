@@ -7,21 +7,26 @@ import numpy as np
 def n_sq_euclidean(X):
     # xi as row-vec
     # xixi^T - 2xixj^T + xjxj^T
-    quad_X = np.sum(np.square(X))
+    quad_X = np.sum(np.square(X), axis=1)
     D = np.add(
         np.add(
             -2*np.dot(X, X.T),
             quad_X
-        ).T, quad_X
+        ).T,
+        quad_X
     )
     return -D
 
-def weighted_by_total(X, zero_diag=True):
+def weighted_by_total(X, zero_diag=True, index=None):
     # numerical stability each elem -=max_of_row
-    exp_X = np.exp(X - np.max(X, axis=0).reshape([-1, 1]))
+    exp_X = np.exp(X - np.max(X, axis=1).reshape([-1, 1]))
 
-    if (zero_diag):
+    if (zero_diag and index is None):
         np.fill_diagonal(exp_X, 0)
+
+    # single entry or entire matrix
+    if (index is not None):
+        exp_X[:, index] = 0.
 
     # numerical stability += eps (for log function)
     exp_X = exp_X + 1e-8
@@ -32,14 +37,14 @@ def weighted_by_total(X, zero_diag=True):
 # regular SNE formulas:
 # p j|i = exp(-|xi - xj|^2 / (2s^2)) / sum_k!=i
 # q j|i = exp(-|yi-yj|^2) / sum_k!=i
-def pdf_matrix(euclidean_dists, sigmas=None):
+def pdf_matrix(euclidean_dists, sigmas=None, index=None):
     if (sigmas is not None):
         # 2s^2
         ss2 = 2. * np.square(sigmas.reshape([-1, 1]))
     else:
         ss2 = 1
 
-    return weighted_by_total(euclidean_dists / ss2)
+    return weighted_by_total(euclidean_dists / ss2, index=index)
 
 # perp(pi) = 2^(H(pi))
 # H(pi) = - sum_j pj|i log2(pj|i)
@@ -49,11 +54,11 @@ def perp(pdf_matrix):
     perp = 2 ** H_pi
     return perp
 
-def get_perp(euclidean_dists, sigmas):
-    return prerp(pdf_matrix(euclidean_dists, sigmas))
+def get_perp(euclidean_dists, sigmas, index):
+    return perp(pdf_matrix(euclidean_dists, sigmas, index))
 
 # binary search to find desired perplexity
-def bsearch_sigma(f, target, precision=1e-10, max_iter=1e5, lb=1e-20, ub=1e3):
+def bsearch_sigma(f, target, precision=1e-7, max_iter=1000, lb=1e-20, ub=1e3):
     for i in range(max_iter):
         mid = (lb + ub) / 2
         mid_val = f(mid)
@@ -75,12 +80,12 @@ def find_optimal_sigmas(euclidean_dists, target_perp):
     sigmas = []
     n = euclidean_dists.shape[0]
     for i in range(n):
-        sigma = bsearch_sigma(
-            lambda s: get_perp(euclidean_dists[i:i+1, :], np.array(sigma)),
+        si = bsearch_sigma(
+            lambda s: get_perp(euclidean_dists[i:i+1, :], np.array(s), index=i),
             target=target_perp
         )
 
-        sigmas.append(sigma)
+        sigmas.append(si)
 
     return np.array(sigmas)
 
@@ -100,8 +105,8 @@ def joint_p(X, target_perp):
 # symmetric SNE: calc symmetric q_ij instead of using q j|i
 # q_ij = q_ji = exp(-|yi-yj|^2) / sum_k!=l exp(-|yk-yl|^2)
 def joint_q_ssne(Y):
-    euclidean = n_sq_euclidean(Y)
-    exp_euclidean = np.exp(euclidean)
+    n_s_euclidean = n_sq_euclidean(Y)
+    exp_euclidean = np.exp(n_s_euclidean)
     np.fill_diagonal(exp_euclidean, 0.)
 
     return exp_euclidean / np.sum(exp_euclidean), None
@@ -130,8 +135,8 @@ def ssne_grad(P, Q, Y, euclidean=None):
 # t-dist SNE: calc student-t 1deg of freedom q to model y
 # q_ij = q_ji = (1+|yi-yj|^2)^-1 / sum_k!=l (1+|yk-yl|^2)^-1
 def joint_q_tsne(Y):
-    n_euclidean = n_sq_euclidean(Y)
-    euclidean_inv = np.power(1. - n_euclidean, -1)
+    n_s_euclidean = n_sq_euclidean(Y)
+    euclidean_inv = np.power(1. - n_s_euclidean, -1)
     np.fill_diagonal(euclidean_inv, 0.)
 
     return euclidean_inv / np.sum(euclidean_inv), euclidean_inv
@@ -171,6 +176,8 @@ def gd_momentum(X, P, rng, max_iter, q_fn, grad_fn, alpha, m):
     Yk = Y.copy()
 
     for k in range(max_iter):
+        if ((k+1) % 100 == 0):
+            print("== GDM - iter == ", k+1)
         Q, euclidean = q_fn(Y)
 
         grad_val = grad_fn(P, Q, Y, euclidean)
@@ -182,24 +189,32 @@ def gd_momentum(X, P, rng, max_iter, q_fn, grad_fn, alpha, m):
     return Y
 
 def ssne_fit(X):
-    desired_perp = 20
-    iters = 500
+    desired_perp = 35
+    iters = 400
     rng = np.random.RandomState(1)
     momentum = 0.9
     learning_rate = 10.
 
+    print("==> s-SNE")
+    print("== init P")
     P = joint_p(X, target_perp=desired_perp)
+    print("== GDM")
     Y = gd_momentum(X, P, rng, max_iter=iters, q_fn=joint_q_ssne, grad_fn=ssne_grad, alpha=learning_rate, m=momentum)
+    print("<==")
     return Y
 
 def tsne_fit(X):
-    desired_perp = 20
-    iters = 500
+    desired_perp = 35
+    iters = 400
     rng = np.random.RandomState(1)
     momentum = 0.9
     learning_rate = 10.
 
+    print("==> t-SNE")
+    print("== init P")
     P = joint_p(X, target_perp=desired_perp)
+    print("== GDM")
     Y = gd_momentum(X, P, rng, max_iter=iters, q_fn=joint_q_tsne, grad_fn=tsne_grad, alpha=learning_rate, m=momentum)
+    print("<==")
     return Y
 
